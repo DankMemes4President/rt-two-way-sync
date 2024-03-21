@@ -14,29 +14,53 @@ services:
       - ./db/scripts/:/docker-entrypoint-initdb.d/
 
   zookeeper:
-    image: zookeeper:latest
+    image: confluentinc/cp-zookeeper:latest
+    container_name: rtws-zookeeper
     ports:
-      - "2181:2181"
+      - "22181:2181"
+    env_file:
+      - .env.kafka
   mq:
-    image: apache/kafka:latest
+    image: confluentinc/cp-kafka:latest
+    container_name: rtws-mqz
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
+      - "29092:29092"
     env_file:
       - .env.kafka
+
+  postgres-to-kafka:
+    image: python:3-alpine
+    container_name: rtws-postgres-to-kafka
+    depends_on:
+      - db
+      - mq
+#    restart: always
+    build:
+      context: ./service/postgres-to-kafka
+      dockerfile: Dockerfile
+    volumes:
+      - ./service/postgres-to-kafka:/app
+    env_file:
+      - ./db/.env.db
 
 
   event-listener:
     container_name: rtws-event-listener
-    build: .
-    restart: always
+    build:
+      context: ./service/event-listener
+      dockerfile: Dockerfile
+#    restart: always
     depends_on:
       - db
       - mq
+    volumes:
+      - ./service/event-listener:/app
     env_file:
       - .env
-    volumes:
-      - ./:/app
+
 volumes:
   postgres_data:
+  zookeeper_data:
+  zookeeper_log:
