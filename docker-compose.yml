@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  db:
+    container_name: rtws-postgres
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - db/.env.db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/scripts/:/docker-entrypoint-initdb.d/
+
+  zookeeper:
+    image: zookeeper:latest
+    ports:
+      - "2181:2181"
+  mq:
+    image: apache/kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    env_file:
+      - .env.kafka
+
+
+  event-listener:
+    container_name: rtws-event-listener
+    build: .
+    restart: always
+    depends_on:
+      - db
+      - mq
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+volumes:
+  postgres_data:
