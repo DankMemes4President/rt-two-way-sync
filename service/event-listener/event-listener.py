@@ -1,3 +1,4 @@
+import json
 import time
 
 from confluent_kafka import Consumer, KafkaError
@@ -33,6 +34,10 @@ try:
 
             # Process message
         print(f"[*] received message: {msg.value().decode('utf-8')}")
+        parsed_msg = json.loads(msg.value().decode('utf-8'))
+        table_name = parsed_msg[0]
+        op_type = parsed_msg[1]
+        changed_data = parsed_msg[2]
 # except Exception as e:
 #     print(f"[*] exited due to {e}")
 finally:
