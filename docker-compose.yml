@@ -22,7 +22,7 @@ services:
       - .env.kafka
   mq:
     image: confluentinc/cp-kafka:latest
-    container_name: rtws-mqz
+    container_name: rtws-mq
     depends_on:
       - zookeeper
     ports:
@@ -46,17 +46,17 @@ services:
       - ./db/.env.db
 
 
-  event-listener:
-    container_name: rtws-event-listener
+  stripe-integration:
+    container_name: rtws-stripe-integration
     build:
-      context: ./service/event-listener
-      dockerfile: Dockerfile
-#    restart: always
+      context: .
+      dockerfile: ./service/stripe-integration/Dockerfile
+    restart: always
     depends_on:
       - db
       - mq
-    volumes:
-      - ./service/event-listener:/app
+#    volumes:
+#      - ./service/stripe-integration:/app
     env_file:
       - .env
 
