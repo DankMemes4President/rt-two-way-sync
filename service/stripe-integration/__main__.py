@@ -10,7 +10,9 @@ from stripe_integration import StripeApi
 def main():
     load_dotenv()
     event_listener = consumer.EventListener()
-    stripeApi = StripeApi(os.getenv('STRIPE_SECRET_KEY'))
+    db_cfg = {"dbname": os.getenv('POSTGRES_DB'), "user": os.getenv('POSTGRES_USER'),
+              "password": os.getenv('POSTGRES_PASSWORD'), "host": "db", "port": "5432", }
+    stripeApi = StripeApi(os.getenv('STRIPE_SECRET_KEY'), db_cfg)
     try:
         while True:
             message = event_listener.listen()
@@ -24,9 +26,9 @@ def main():
             if message.operation_type == "INSERT":
                 stripeApi.create_customer(id=cust_id, name=cust_name, email=cust_email)
             elif message.operation_type == "UPDATE":
-                stripeApi.update_customer()
+                stripeApi.update_customer(id=cust_id, name=cust_name, email=cust_email)
             elif message.operation_type == "DELETE":
-                stripeApi.delete_customer()
+                stripeApi.delete_customer(id=cust_id)
             else:
                 raise Exception("unknown operation type found")
 

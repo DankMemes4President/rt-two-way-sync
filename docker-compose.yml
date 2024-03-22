@@ -60,6 +60,7 @@ services:
     env_file:
       - .env
       - ./service/stripe-integration/.env.stripe
+      - ./db/.env.db
 
 volumes:
   postgres_data:
