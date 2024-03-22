@@ -5,5 +5,5 @@ ENV PYTHONUNBUFFERED 1
 ENV APP_HOME=/app
 WORKDIR $APP_HOME
 
-RUN apk add librdkafka-dev
+RUN apk add librdkafka-dev netcat-openbsd
 RUN apk add --virtual .build-deps gcc musl-dev
