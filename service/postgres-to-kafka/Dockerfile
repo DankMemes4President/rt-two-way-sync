@@ -5,5 +5,6 @@ RUN apk add postgresql-libs
 RUN apk add --virtual .build-deps gcc musl-dev postgresql-dev
 RUN python3 -m pip install -r requirements.txt
 RUN apk --purge del .build-deps
+RUN chmod +x entrypoint.sh
 
-CMD ["python", "postgres-to-kafka.py"]
+ENTRYPOINT ["sh","entrypoint.sh"]
