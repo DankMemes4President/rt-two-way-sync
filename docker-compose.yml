@@ -46,20 +46,20 @@ services:
       - ./db/.env.db
 
 
-  stripe-integration:
-    container_name: rtws-stripe-integration
+  stripe-forward-integration:
+    container_name: rtws-stripe-forward-integration
     build:
       context: .
-      dockerfile: ./service/stripe-integration/Dockerfile
+      dockerfile: service/stripe-forward-integration/Dockerfile
     restart: always
     depends_on:
       - db
       - mq
 #    volumes:
-#      - ./service/stripe-integration:/app
+#      - ./service/stripe-forward-integration:/app
     env_file:
       - .env
-      - ./service/stripe-integration/.env.stripe
+      - service/stripe-forward-integration/.env.stripe
       - ./db/.env.db
 
 volumes:
