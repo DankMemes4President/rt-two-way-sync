@@ -8,5 +8,6 @@ COPY ./service/stripe-integration $APP_HOME/service/stripe-integration
 WORKDIR $APP_HOME/service/stripe-integration
 RUN python3 -m pip install -r $APP_HOME/service/stripe-integration/requirements.txt
 RUN apk --purge del .build-deps
+RUN chmod +x entrypoint.sh
 
-CMD ["python", "__main__.py"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
