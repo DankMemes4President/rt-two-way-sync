@@ -17,8 +17,7 @@ class EventObject:
 
 class EventListener:
     def __init__(self, kafka_server="mq:9092", kafka_topic=["changes"], kafka_group_id=uuid.uuid4()):
-        self.kafka_config = {'bootstrap.servers': kafka_server, 'group.id': kafka_group_id,
-                             'auto.offset.reset': 'earliest'}
+        self.kafka_config = {'bootstrap.servers': kafka_server, 'group.id': kafka_group_id}
         # self.kafka_server = kafka_server
         self.kafka_topic = kafka_topic
         self.kafka_group_id = kafka_group_id
