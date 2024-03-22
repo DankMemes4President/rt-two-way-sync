@@ -2,3 +2,4 @@
 .idea/
 .env
 .env.*
+event_listener/event_listener.egg-info
