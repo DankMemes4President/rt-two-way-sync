@@ -3,7 +3,13 @@ CREATE or REPLACE FUNCTION push_change() RETURNS TRIGGER AS $$
     DECLARE
         payload json;
     BEGIN
-        payload := row_to_json(new);
+
+        IF tg_op = 'DELETE' THEN
+            payload := row_to_json(old);
+        ELSE
+            payload := row_to_json(new);
+        END IF;
+
         PERFORM pg_notify('changes', json_build_array(tg_table_name, tg_op, payload)::text);
         RETURN NEW;
     END;
