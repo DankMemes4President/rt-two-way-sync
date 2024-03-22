@@ -1,7 +1,6 @@
 import json
 import time
 import uuid
-from abc import ABC, abstractmethod
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
 
@@ -35,17 +34,19 @@ class EventListener:
         if msg.error():
             if msg.error().code() == KafkaError._PARTITION_EOF:
                 return None
-            elif msg.error() == KafkaError.UNKNOWN_TOPIC_OR_PART:
+            elif msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
                 # in this context this only happens when the mq is empty and producer has not yet created the
                 # topic.
                 print("[*] could not find topic, sleeping for 5s...")
                 time.sleep(5)
+                return None
             else:
                 # Handle other errors
                 print(f"[*] error: {msg.error()}")
                 raise KafkaException(msg.error())
         # Process message
         message = EventObject(msg)
+        self.consumer.commit()
         return message
 
     def stop_listen(self):
