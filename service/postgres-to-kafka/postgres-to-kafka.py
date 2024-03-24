@@ -25,6 +25,7 @@ while True:
     if not topic_created:
         topic = NewTopic('changes')
         admin_client.create_topics([topic])
+        topic_created = True
     # except KafkaException as e:
     #     print(f'[*] something went wrong: {e}')
     conn.poll()
@@ -37,4 +38,3 @@ while True:
             producer.flush()
 
     # print("[*] polling...")
-    time.sleep(3)
