@@ -21,7 +21,7 @@ class StripeApi:
         cur = self.conn.cursor()
         create__customer__sql = "INSERT INTO stripe_integration (customer_id, stripe_id) VALUES (%s,%s)"
         try:
-            customer = self.client.Customer.create(name=name, email=email)
+            customer = self.client.Customer.create(name=name, email=email, metadata={"fwd-push": True})
             data = (str(id), customer.id)
             cur.execute(create__customer__sql, data)
         except Exception as e:
@@ -38,7 +38,7 @@ class StripeApi:
             print("hi")
             cur.execute(fetch__strip_id__from__customer_id, str(id))
             stripe_id = cur.fetchone()[0]
-            self.client.Customer.modify(stripe_id, name=name, email=email)
+            self.client.Customer.modify(stripe_id, name=name, email=email, metadata={"fwd-push": True})
         except Exception as e:
             raise e
             print(f"[*] error : {e}")
@@ -55,7 +55,7 @@ class StripeApi:
             # if record_exists:
             #     delete__customer__record = "DELETE FROM customers WHERE id=%s"
             #     cur.execute(delete__customer__record, (str(cust_id)))
-            self.client.Customer.delete(stripe_id)
+            self.client.Customer.delete(stripe_id, metadata={"fwd-push": True})
         except Exception as e:
             raise e
         # check__if__record__exists = "SELECT EXISTS(SELECT 1 FROM stripe_integration WHERE customer_id = %s);"
