@@ -1,8 +1,10 @@
 import os
+import time
 
 import psycopg2
+from confluent_kafka import Producer, KafkaException
+from confluent_kafka.admin import AdminClient, NewTopic
 from dotenv import load_dotenv
-from confluent_kafka import Producer
 
 load_dotenv()
 
@@ -17,7 +19,14 @@ print("[*] connected to postgres")
 # pushing those changes to kafka mq
 kafka_config = {'bootstrap.servers': 'mq:9092', }
 producer = Producer(kafka_config)
+admin_client = AdminClient(kafka_config)
+topic_created = False
 while True:
+    if not topic_created:
+        topic = NewTopic('changes')
+        admin_client.create_topics([topic])
+    # except KafkaException as e:
+    #     print(f'[*] something went wrong: {e}')
     conn.poll()
     # print(conn.notifies)
     if conn.notifies:
@@ -28,3 +37,4 @@ while True:
             producer.flush()
 
     # print("[*] polling...")
+    time.sleep(3)

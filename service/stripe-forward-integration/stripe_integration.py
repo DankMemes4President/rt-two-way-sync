@@ -9,6 +9,9 @@ class StripeApi:
                                 host=db_cfg["host"], port=db_cfg["port"])
         conn.autocommit = True
         self.conn = conn
+        cur = conn.cursor()
+        cur.execute("SET SESSION myapp.reverse_trigger_off = FALSE")
+        cur.close()
         print("[*] connected to postgres")
         stripe.api_key = stripe_secret_key
         self.client = stripe
@@ -19,9 +22,10 @@ class StripeApi:
         create__customer__sql = "INSERT INTO stripe_integration (customer_id, stripe_id) VALUES (%s,%s)"
         try:
             customer = self.client.Customer.create(name=name, email=email)
-            data = (id, customer.id)
+            data = (str(id), customer.id)
             cur.execute(create__customer__sql, data)
         except Exception as e:
+            raise e
             print(f"[*] error : {e}")
         finally:
             cur.close()
@@ -36,23 +40,35 @@ class StripeApi:
             stripe_id = cur.fetchone()[0]
             self.client.Customer.modify(stripe_id, name=name, email=email)
         except Exception as e:
+            raise e
             print(f"[*] error : {e}")
         finally:
             cur.close()
 
-    def delete_customer(self, id):
+    def delete_customer(self, stripe_id, cust_id):
         print("[*] delete customer called!")
         cur = self.conn.cursor()
-        check__if__record__exists = "SELECT EXISTS(SELECT 1 FROM stripe_integration WHERE customer_id = %s);"
-
+        # check__if__record__exists = "SELECT EXISTS(SELECT 1 FROM customers WHERE id=%s);"
         try:
-            cur.execute(check__if__record__exists, str(id))
-            record_exists = cur.fetchone()[0]
-
-            if record_exists:
-                delete__row = "DELETE FROM stripe_integration WHERE customer_id = %s;"
-                cur.execute(delete__row, str(id))
+            # cur.execute(check__if__record__exists, (str(cust_id)))
+            # record_exists = cur.fetchone()[0]
+            # if record_exists:
+            #     delete__customer__record = "DELETE FROM customers WHERE id=%s"
+            #     cur.execute(delete__customer__record, (str(cust_id)))
+            self.client.Customer.delete(stripe_id)
         except Exception as e:
-            print(f"[*] error : {e}")
-        finally:
-            cur.close()
+            raise e
+        # check__if__record__exists = "SELECT EXISTS(SELECT 1 FROM stripe_integration WHERE customer_id = %s);"
+        #
+        # try:
+        #     cur.execute(check__if__record__exists, str(id))
+        #     record_exists = cur.fetchone()[0]
+        #
+        #     if record_exists:
+        #         delete__row = "DELETE FROM stripe_integration WHERE customer_id = %s;"
+        #         cur.execute(delete__row, str(id))
+        # except Exception as e:
+        #     raise e
+        #     print(f"[*] error : {e}")
+        # finally:
+        #     cur.close()

@@ -45,7 +45,6 @@ services:
     env_file:
       - ./db/.env.db
 
-
   stripe-forward-integration:
     container_name: rtws-stripe-forward-integration
     build:
@@ -60,6 +59,19 @@ services:
     env_file:
       - .env
       - service/stripe-forward-integration/.env.stripe
+      - ./db/.env.db
+
+  stripe-reverse-integration:
+    container_name: rtws-stripe-reverse-integration
+    build:
+      context: ./service/stripe-reverse-integration
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - db
+    env_file:
       - ./db/.env.db
 
 volumes:

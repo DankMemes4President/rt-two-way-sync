@@ -17,20 +17,25 @@ def main():
         while True:
             message = event_listener.listen()
             if not message:
-                print("nothing")
+                # print("nothing")
                 continue
 
-            cust_id = message.payload["id"]
-            cust_name = message.payload["name"]
-            cust_email = message.payload["email"]
-            if message.operation_type == "INSERT":
-                stripeApi.create_customer(id=cust_id, name=cust_name, email=cust_email)
-            elif message.operation_type == "UPDATE":
-                stripeApi.update_customer(id=cust_id, name=cust_name, email=cust_email)
-            elif message.operation_type == "DELETE":
-                stripeApi.delete_customer(id=cust_id)
+            if message.operation_type == "DELETE":
+                stripe_id = message.payload["stripe_id"]
+                cust_id = message.payload["customer_id"]
+                stripeApi.delete_customer(stripe_id, cust_id)
             else:
-                raise Exception("unknown operation type found")
+                cust_id = message.payload["id"]
+                cust_name = message.payload["name"]
+                cust_email = message.payload["email"]
+                if message.operation_type == "INSERT":
+                    stripeApi.create_customer(id=cust_id, name=cust_name, email=cust_email)
+                elif message.operation_type == "UPDATE":
+                    stripeApi.update_customer(id=cust_id, name=cust_name, email=cust_email)
+                # elif message.operation_type == "DELETE":
+                #     stripeApi.delete_customer(id=cust_id)
+                else:
+                    raise Exception("unknown operation type found")
 
     except KafkaException as e:
         print(f"[*] exception occurred: {e}")
