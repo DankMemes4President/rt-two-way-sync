@@ -1,7 +1,5 @@
 # Realtime-Two-Way-Sync
-for zenskar :)
 
----
 ## Deployment
 
 1. `$ docker built -t rtws-base:latest . -f base/Dockerfile`
